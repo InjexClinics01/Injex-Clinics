@@ -1,0 +1,12 @@
+<!-- Supabase Auth → Email Templates → "Invite user". Paste this as the message body. -->
+<h2>You're invited to Staff Performance</h2>
+<p>Your administrator has created an account for you.</p>
+<p>Click the button below to choose your password and sign in:</p>
+<p>
+  <a
+    href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/reset-password?welcome=1"
+    style="display:inline-block;padding:10px 18px;border-radius:8px;background:#0f766e;color:#ffffff;text-decoration:none;font-weight:600"
+    >Accept invitation</a
+  >
+</p>
+<p style="color:#6b7280;font-size:13px">This link can be used once and expires in 24 hours. If you weren't expecting this email, you can ignore it.</p>

@@ -1,0 +1,24 @@
+# Secrets — never commit real environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies / build output
+node_modules/
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Supabase CLI local state
+backend/supabase/.temp/
+backend/supabase/.branches/
+
+# Tooling / OS
+.vercel
+.DS_Store
+*.pem
+npm-debug.log*
+frontend/supabase/.temp/

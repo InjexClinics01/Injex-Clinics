@@ -1,0 +1,11 @@
+<!-- Supabase Auth → Email Templates → "Reset password". Paste this as the message body. -->
+<h2>Reset your password</h2>
+<p>We received a request to reset the password for your Staff Performance account.</p>
+<p>
+  <a
+    href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password"
+    style="display:inline-block;padding:10px 18px;border-radius:8px;background:#0f766e;color:#ffffff;text-decoration:none;font-weight:600"
+    >Choose a new password</a
+  >
+</p>
+<p style="color:#6b7280;font-size:13px">This link can be used once and expires in 1 hour. If you didn't request a reset, you can ignore this email; your password won't change.</p>
