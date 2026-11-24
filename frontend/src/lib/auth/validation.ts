@@ -29,7 +29,8 @@ export const passwordSchema = z
   .refine((v) => byteLength(v) <= PASSWORD_MAX_BYTES, "Password is too long (maximum 72 characters).")
   .refine((v) => !CONTROL_CHARS.test(v), "Password contains invalid characters.")
   .refine((v) => v.trim() === v, "Password cannot start or end with a space.")
-  .refine((v) => /\p{L}/u.test(v), "Password must contain a letter.")
+  .refine((v) => /\p{Lu}/u.test(v), "Password must contain at least one uppercase letter.")
+  .refine((v) => /\p{Ll}/u.test(v), "Password must contain at least one lowercase letter.")
   .refine((v) => /\p{N}/u.test(v), "Password must contain a number.");
 
 /** Rules for an EXISTING password (login / current password): presence + sane size only. */

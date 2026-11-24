@@ -19,6 +19,7 @@ type Props = {
   employees?: Pick<Profile, "id" | "full_name" | "employee_category">[];
   suggestedEmployeeId?: string | null;
   suggestedPeriod?: string;
+  suggestedTitle?: string;
 };
 
 export function HallOfFameCard({
@@ -27,6 +28,7 @@ export function HallOfFameCard({
   employees = [],
   suggestedEmployeeId,
   suggestedPeriod,
+  suggestedTitle,
 }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -179,6 +181,7 @@ export function HallOfFameCard({
           employees={employees}
           suggestedEmployeeId={suggestedEmployeeId}
           suggestedPeriod={suggestedPeriod}
+          suggestedTitle={suggestedTitle}
           initialData={isEditMode ? award : null}
         />
       )}

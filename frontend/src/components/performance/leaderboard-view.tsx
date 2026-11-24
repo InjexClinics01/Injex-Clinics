@@ -71,6 +71,13 @@ export function LeaderboardView(props: LeaderboardViewProps) {
   const own = rows.find((r) => r.employee_id === viewerId);
   const hallOfFameSet = new Set((hallOfFameAwards ?? []).map((a) => a.employee_id));
 
+  const suggestedTitle =
+    period === "monthly"
+      ? "Employee of the Month"
+      : period === "weekly"
+        ? "Employee of the Week"
+        : "Employee of the Day";
+
   return (
     <div className="space-y-6">
       <HallOfFameCard
@@ -79,6 +86,7 @@ export function LeaderboardView(props: LeaderboardViewProps) {
         employees={employees}
         suggestedEmployeeId={rows[0]?.employee_id}
         suggestedPeriod={formatPeriod(period, start, periodEnd(period, start))}
+        suggestedTitle={suggestedTitle}
       />
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">

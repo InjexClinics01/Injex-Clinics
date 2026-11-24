@@ -70,6 +70,18 @@ describe("entry validation", () => {
     assert.equal(parseEntryValues(inputs, { ...raw, hours: "" }, { submitting: false }).errors.hours, undefined);
     assert.equal(parseEntryValues(inputs, { ...raw, hours: "" }, { submitting: true }).errors.hours, "Required");
   });
+  it("rejects 0 tickets when revenue is greater than 0 on submit", () => {
+    const invalid = parseEntryValues(inputs, { ...raw, revenue: "22", tickets: "0" }, { submitting: true });
+    assert.equal(invalid.errors.tickets, "Must be at least 1 when revenue is recorded");
+
+    // Allows 0 tickets if revenue is 0 (training/admin day)
+    const validZeroRev = parseEntryValues(inputs, { ...raw, revenue: "0", tickets: "0" }, { submitting: true });
+    assert.equal(validZeroRev.errors.tickets, undefined);
+
+    // Allows saving draft with revenue > 0 and tickets 0
+    const draft = parseEntryValues(inputs, { ...raw, revenue: "22", tickets: "0" }, { submitting: false });
+    assert.equal(draft.errors.tickets, undefined);
+  });
   for (const [field, value, message] of [
     ["hours", "abc", "Enter a number"],
     ["hours", "1e3", "Enter a number"],
@@ -139,6 +151,10 @@ describe("formatting", () => {
     assert.equal(formatMetricValue(0.375, "decimal", "units/h"), "0.38 units/h");
     assert.equal(formatMetricValue(5, "integer", null), "5");
     assert.equal(formatMetricValue(null, "currency", "$"), "—");
+    assert.equal(formatMetricValue(1, "integer", "treatments"), "1 treatment");
+    assert.equal(formatMetricValue(3, "integer", "treatments"), "3 treatments");
+    assert.equal(formatMetricValue(1, "integer", "tickets"), "1 ticket");
+    assert.equal(formatMetricValue(4, "integer", "tickets"), "4 tickets");
   });
 });
 

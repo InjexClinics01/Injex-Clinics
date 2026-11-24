@@ -34,11 +34,13 @@ describe("new password", () => {
     ["Short1", "too short"],
     ["onlyletters", "no number"],
     ["12345678", "no letter"],
+    ["alllowercase1", "no uppercase letter"],
+    ["ALLUPPERCASE1", "no lowercase letter"],
     [" Clinic2026", "leading space"],
     ["Clinic2026 ", "trailing space"],
     ["Clinic\n2026", "control character"],
-    ["a1" + "x".repeat(71), "over 72 bytes"],
-    ["é1" + "é".repeat(36), "over 72 bytes (multi-byte)"],
+    ["aA1" + "x".repeat(70), "over 72 bytes"],
+    ["éÉ1" + "é".repeat(36), "over 72 bytes (multi-byte)"],
   ] as const) {
     it(`rejects: ${why}`, () => assert.ok(!ok(passwordSchema, bad)));
   }

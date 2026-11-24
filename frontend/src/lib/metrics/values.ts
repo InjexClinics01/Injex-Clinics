@@ -37,6 +37,19 @@ export function parseEntryValues(
     if (error) errors[m.id] = error;
     else values[m.id] = value;
   }
+
+  if (submitting) {
+    const revenueMetric = metrics.find((m) => m.key === "revenue");
+    const ticketsMetric = metrics.find((m) => m.key === "tickets");
+    if (revenueMetric && ticketsMetric) {
+      const rev = values[revenueMetric.id] ?? 0;
+      const tix = values[ticketsMetric.id] ?? 0;
+      if (rev > 0 && tix === 0 && !errors[ticketsMetric.id]) {
+        errors[ticketsMetric.id] = "Must be at least 1 when revenue is recorded";
+      }
+    }
+  }
+
   return { values, cleared, errors };
 }
 
@@ -98,5 +111,6 @@ export function formatMetricValue(value: number | null | undefined, dataType: Me
     return `${symbol}${moneyFormat.format(value)}${per ? `/${per}` : ""}`;
   }
   if (dataType === "percentage") return `${numberFormat.format(value)}%`;
-  return unit ? `${numberFormat.format(value)} ${unit}` : numberFormat.format(value);
+  const displayUnit = value === 1 && (unit === "treatments" || unit === "tickets") ? unit.slice(0, -1) : unit;
+  return displayUnit ? `${numberFormat.format(value)} ${displayUnit}` : numberFormat.format(value);
 }

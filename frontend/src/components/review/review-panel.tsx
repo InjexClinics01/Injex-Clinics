@@ -43,6 +43,7 @@ const CURRENT_DESCRIPTIONS: Record<string, string> = {
 
 export function ReviewPanel({ entryId, status, finalRejection, reviewNote, reviewerName, reviewedAt }: Props) {
   const [state, action, pending] = useActionState(reviewEntry, initialFormState);
+  const [activeDecision, setActiveDecision] = useState<"approve" | "correction" | "reject" | null>(null);
   const [isChangingDecision, setIsChangingDecision] = useState(false);
   const [lastHandledState, setLastHandledState] = useState(state);
 
@@ -171,17 +172,40 @@ export function ReviewPanel({ entryId, status, finalRejection, reviewNote, revie
 
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               {decisions.includes("approve") && (
-                <SubmitButton pending={pending} name="decision" value="approve" className="h-10 sm:flex-1">
+                <SubmitButton
+                  pending={pending && activeDecision === "approve"}
+                  disabled={pending}
+                  onClick={() => setActiveDecision("approve")}
+                  name="decision"
+                  value="approve"
+                  className="h-10 sm:flex-1"
+                >
                   <Check aria-hidden /> Approve
                 </SubmitButton>
               )}
               {decisions.includes("correction") && (
-                <SubmitButton pending={pending} name="decision" value="correction" variant="outline" className="h-10 sm:flex-1">
+                <SubmitButton
+                  pending={pending && activeDecision === "correction"}
+                  disabled={pending}
+                  onClick={() => setActiveDecision("correction")}
+                  name="decision"
+                  value="correction"
+                  variant="outline"
+                  className="h-10 sm:flex-1"
+                >
                   <RotateCcw aria-hidden /> Request correction
                 </SubmitButton>
               )}
               {decisions.includes("reject") && (
-                <SubmitButton pending={pending} name="decision" value="reject" variant="destructive" className="h-10 sm:flex-1">
+                <SubmitButton
+                  pending={pending && activeDecision === "reject"}
+                  disabled={pending}
+                  onClick={() => setActiveDecision("reject")}
+                  name="decision"
+                  value="reject"
+                  variant="destructive"
+                  className="h-10 sm:flex-1"
+                >
                   <X aria-hidden /> Reject
                 </SubmitButton>
               )}

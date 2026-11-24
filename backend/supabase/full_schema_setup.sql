@@ -3006,7 +3006,7 @@ insert into public.metric_definitions
 values
   ('beauty_therapist', 'hours_worked',   'Hours Worked',      'input', 'decimal',    'h',       'sum',     true,  0, 24,   null, false, false, false, 10),
   ('beauty_therapist', 'revenue',        'Revenue',           'input', 'currency',   '$',       'sum',     true,  0, null, null, false, true,  true,  20),
-  ('beauty_therapist', 'rebooking_pct',  'Rebooking %',       'input', 'percentage', '%',       'average', true,  0, 100,  60,   false, true,  true,  30),
+  ('beauty_therapist', 'rebooking_pct',  'Rebooking %',       'input', 'percentage', '%',       'average', true,  0, 100,  null, false, true,  true,  30),
   ('beauty_therapist', 'tickets',        'Number of Tickets', 'input', 'integer',    'tickets', 'sum',     true,  0, null, null, false, true,  true,  40),
   ('beauty_therapist', 'retail_units',   'Retail / Units',    'input', 'decimal',    'units',   'sum',     false, 0, null, null, false, true,  true,  50)
 on conflict (category, key) do update set

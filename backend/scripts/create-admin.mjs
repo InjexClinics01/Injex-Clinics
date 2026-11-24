@@ -101,9 +101,9 @@ if (existing.length === 1) {
 
 if (!values.name) fail('No account exists for this email yet. To create one, also pass --name "Full Name".');
 const generated = !values.password;
-const password = values.password ?? `${randomBytes(12).toString("base64url")}9a`;
-if (password.length < 8 || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
-  fail("Password must be at least 8 characters and contain a letter and a number.");
+const password = values.password ?? `${randomBytes(12).toString("base64url")}9aA`;
+if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+  fail("Password must be at least 8 characters and contain an uppercase letter, a lowercase letter, and a number.");
 }
 
 const created = await api("POST", "/auth/v1/admin/users", {

@@ -11,9 +11,13 @@ import {
   updateEmployeeSchema,
 } from "@/lib/admin/employee-schema";
 import { requireAdmin } from "@/lib/auth/session";
-// Commented out: getSiteUrl was only used by manual createEmployee
-// import { getSiteUrl } from "@/lib/auth/site-url";
+import { getSiteUrl } from "@/lib/auth/site-url";
 import { toFieldErrors, type FormState } from "@/lib/auth/validation";
+import { sendEmail } from "@/lib/email/resend";
+import {
+  generateRegistrationApprovedEmail,
+  generateRegistrationRejectedEmail,
+} from "@/lib/email/templates/registration-decision";
 import { AdminClientNotConfiguredError, createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -302,6 +306,20 @@ export async function approveRegistrationRequest(requestId: string): Promise<For
     },
   });
 
+  // 4. Send approval notification email
+  const siteUrl = getSiteUrl();
+  const { subject, html, text } = generateRegistrationApprovedEmail({
+    recipientName: request.full_name,
+    category: request.employee_category,
+    loginUrl: `${siteUrl}/login`,
+  });
+  await sendEmail({
+    to: request.email,
+    subject,
+    html,
+    text,
+  });
+
   revalidate();
   return {
     status: "success",
@@ -367,6 +385,18 @@ export async function rejectRegistrationRequest(requestId: string, reason?: stri
       employee_category: request.employee_category,
       reason: reason || null,
     },
+  });
+
+  // 4. Send rejection notification email
+  const { subject, html, text } = generateRegistrationRejectedEmail({
+    recipientName: request.full_name,
+    reason,
+  });
+  await sendEmail({
+    to: request.email,
+    subject,
+    html,
+    text,
   });
 
   revalidate();

@@ -73,6 +73,7 @@ function EditableEntry({ date, metrics, entry }: Omit<Props, "today">) {
   const [raw, setRaw] = useState<Record<string, string>>(() =>
     Object.fromEntries(inputs.map((m) => [m.id, valueText(entry?.values.find((v) => v.metric_id === m.id)?.value)])),
   );
+  const [activeIntent, setActiveIntent] = useState<"draft" | "submit" | null>(null);
 
   const [state, action, pending] = useActionState(saveEntry, initialFormState);
   const validate = (fd: FormData) => {
@@ -149,10 +150,26 @@ function EditableEntry({ date, metrics, entry }: Omit<Props, "today">) {
       )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <SubmitButton pending={pending} name="intent" value="draft" variant="outline" className="h-10">
+        <SubmitButton
+          pending={pending && activeIntent === "draft"}
+          disabled={pending}
+          onClick={() => setActiveIntent("draft")}
+          name="intent"
+          value="draft"
+          variant="outline"
+          className="h-10"
+        >
           Save draft
         </SubmitButton>
-        <SubmitButton pending={pending} pendingLabel="Saving…" name="intent" value="submit" className="h-10">
+        <SubmitButton
+          pending={pending && activeIntent === "submit"}
+          disabled={pending}
+          onClick={() => setActiveIntent("submit")}
+          pendingLabel="Saving…"
+          name="intent"
+          value="submit"
+          className="h-10"
+        >
           Submit for review
         </SubmitButton>
       </div>

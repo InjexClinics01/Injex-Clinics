@@ -34,6 +34,7 @@ type Props = {
   employees: Pick<Profile, "id" | "full_name" | "employee_category">[];
   suggestedEmployeeId?: string | null;
   suggestedPeriod?: string;
+  suggestedTitle?: string;
   initialData?: HallOfFameAward | null;
 };
 
@@ -52,6 +53,7 @@ function HallOfFameForm({
   employees,
   suggestedEmployeeId,
   suggestedPeriod,
+  suggestedTitle,
   initialData,
 }: Props) {
   const isEditing = Boolean(initialData);
@@ -111,7 +113,7 @@ function HallOfFameForm({
             {...fieldA11y("title", errors.title)}
             name="title"
             placeholder="e.g. Employee of the Month"
-            defaultValue={v.title ?? initialData?.title ?? "Employee of the Month"}
+            defaultValue={v.title ?? initialData?.title ?? suggestedTitle ?? "Employee of the Month"}
             required
             maxLength={100}
           />
