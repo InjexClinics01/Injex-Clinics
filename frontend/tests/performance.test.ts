@@ -32,6 +32,14 @@ describe("leaderboard ranking", () => {
   it("everyone on zero shares first place", () => {
     assert.deepEqual(rankRows([row("B", 0), row("A", 0)], (r) => r.points).map((r) => r.rank), [1, 1]);
   });
+  it("uses optional tieBreaker to order tied scores before falling back to name", () => {
+    const tiedRows = [
+      row("Adam", 0, 100, { approved_days: 0 }),
+      row("Zara", 0, 100, { approved_days: 2 }),
+    ];
+    const ranked = rankRows(tiedRows, (r) => r.points, (a, b) => b.approved_days - a.approved_days);
+    assert.deepEqual(ranked.map((r) => r.full_name), ["Zara", "Adam"]);
+  });
   it("rows without a score are listed last, unranked", () => {
     const ranked = rankRows([row("Ann", 0, 0), row("Bob", 20)], (r) => normalizedScore(r));
     assert.deepEqual(ranked.map((r) => [r.full_name, r.rank]), [["Bob", 1], ["Ann", null]]);

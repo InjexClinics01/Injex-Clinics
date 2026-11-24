@@ -68,9 +68,6 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
             <Link href="/employee/daily-entry" className={buttonVariants()}>
               <PenLine /> {todayEntry ? "Open today's entry" : "Add today's entry"}
             </Link>
-            <Link href="/profile" className={cn(buttonVariants({ variant: "outline" }))}>
-              <UserRound /> Profile
-            </Link>
           </div>
         </div>
         {!profile.employee_category && (
@@ -99,7 +96,7 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
         <StatCard label="Awaiting review" value={pendingCount} icon={Clock} hint="Submitted entries" muted={pendingCount === 0} />
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
         <Card>
           <CardHeader>
             <CardTitle>This week</CardTitle>
@@ -109,7 +106,7 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
             {summaryMetrics.length === 0 ? (
               <p className="text-sm text-muted-foreground">Your daily form hasn&apos;t been set up yet.</p>
             ) : (
-              <dl className="grid grid-cols-2 gap-3">
+              <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {summaryMetrics.map((m) => (
                   <div key={m.id} className="rounded-lg border bg-muted/30 p-3">
                     <dt className="truncate text-xs text-muted-foreground">{m.name}</dt>
@@ -123,6 +120,7 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
           </CardContent>
         </Card>
 
+        {/* Goal progress card commented out
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <div className="space-y-1">
@@ -161,16 +159,17 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
             )}
           </CardContent>
         </Card>
+        */}
       </div>
 
       <Card className="mt-6">
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">
             <CardTitle>Recent entries</CardTitle>
             <CardDescription>Your latest daily submissions</CardDescription>
           </div>
-          <Link href="/employee/history" className={buttonVariants({ variant: "ghost", size: "sm" })}>
-            History <ArrowRight />
+          <Link href="/employee/history" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            History <ArrowRight className="size-4" />
           </Link>
         </CardHeader>
         <CardContent>
@@ -194,7 +193,7 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
         </CardContent>
       </Card>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      {/* <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="pb-0">
           <CardHeader className="flex-row items-center justify-between">
             <div className="space-y-1">
@@ -247,7 +246,7 @@ export function EmployeeOverview({ profile, data }: { profile: Profile; data: Em
             )}
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </>
   );
 }

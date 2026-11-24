@@ -64,12 +64,30 @@ export function LeaderboardView(props: LeaderboardViewProps) {
   const start = periodStart(period, day);
   const isCurrent = start === periodStart(period, today);
   const overall = category === null;
+  const hallOfFameSet = new Set((hallOfFameAwards ?? []).map((a) => a.employee_id));
+
   const rankMetric = rankBy ? metrics.find((m) => m.id === rankBy) : undefined;
-  const ranked = rankRows(rows, (r) => (rankMetric ? metricScore(r, rankMetric.id) : overall ? normalizedScore(r) : r.points));
+  const ranked = rankRows(
+    rows,
+    (r) => (rankMetric ? metricScore(r, rankMetric.id) : overall ? normalizedScore(r) : r.points),
+    (a, b) => {
+      // 1. Hall of Fame recipient ranks higher on ties
+      const aHof = hallOfFameSet.has(a.employee_id) ? 1 : 0;
+      const bHof = hallOfFameSet.has(b.employee_id) ? 1 : 0;
+      if (bHof !== aHof) return bHof - aHof;
+
+      // 2. More goals achieved ranks higher
+      if (b.goals_achieved !== a.goals_achieved) return b.goals_achieved - a.goals_achieved;
+
+      // 3. More approved days ranks higher
+      if (b.approved_days !== a.approved_days) return b.approved_days - a.approved_days;
+
+      return 0;
+    },
+  );
   const noRules = rows.length > 0 && rows.every((r) => r.max_points === 0);
   const query: Query = { period, date: start, category, metric: rankMetric?.id ?? null };
   const own = rows.find((r) => r.employee_id === viewerId);
-  const hallOfFameSet = new Set((hallOfFameAwards ?? []).map((a) => a.employee_id));
 
   const suggestedTitle =
     period === "monthly"
@@ -258,7 +276,7 @@ export function LeaderboardView(props: LeaderboardViewProps) {
         )}
       </Card>
 
-      {!isAdmin && own && !overall && <Comparison own={own} metrics={metrics} />}
+      {/* {!isAdmin && own && !overall && <Comparison own={own} metrics={metrics} />} */}
     </div>
   );
 }
@@ -332,43 +350,43 @@ function GoalsCell({ row }: { row: LeaderboardRow }) {
 }
 
 /** The employee's own figures next to their category's average (no colleague's figures are shown). */
-function Comparison({ own, metrics }: { own: LeaderboardRow; metrics: MetricDefinition[] }) {
-  const shown = headlineMetrics(metrics, 6);
-  if (shown.length === 0) return null;
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>You vs team average</CardTitle>
-        <CardDescription>
-          Your approved results for this period compared with your category&apos;s average. Averages appear once at least 3 people
-          have results, so no one&apos;s individual figures can be worked out.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((m) => {
-            const mine = own.metric_values?.[m.id] ?? null;
-            const team = own.team_average?.[m.id] ?? null;
-            const diff = mine !== null && team !== null ? Number(mine) - Number(team) : null;
-            return (
-              <div key={m.id} className="rounded-lg border bg-muted/30 p-3">
-                <dt className="truncate text-xs text-muted-foreground">{m.name}</dt>
-                <dd className="mt-1 flex items-baseline justify-between gap-2">
-                  <span className="font-semibold tabular-nums">{formatMetricValue(mine, m.data_type, m.unit)}</span>
-                  {diff !== null && diff !== 0 && (
-                    <span className={cn("inline-flex items-center text-xs tabular-nums", diff > 0 ? "text-success" : "text-muted-foreground")}>
-                      {diff > 0 ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden />}
-                      <span className="sr-only">{diff > 0 ? "above" : "below"} average by </span>
-                      {formatMetricValue(Math.abs(diff), m.data_type, m.unit)}
-                    </span>
-                  )}
-                </dd>
-                <dd className="text-xs text-muted-foreground">Team average {formatMetricValue(team, m.data_type, m.unit)}</dd>
-              </div>
-            );
-          })}
-        </dl>
-      </CardContent>
-    </Card>
-  );
-}
+// function Comparison({ own, metrics }: { own: LeaderboardRow; metrics: MetricDefinition[] }) {
+//   const shown = headlineMetrics(metrics, 6);
+//   if (shown.length === 0) return null;
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle>You vs team average</CardTitle>
+//         <CardDescription>
+//           Your approved results for this period compared with your category&apos;s average. Averages appear once at least 3 people
+//           have results, so no one&apos;s individual figures can be worked out.
+//         </CardDescription>
+//       </CardHeader>
+//       <CardContent>
+//         <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+//           {shown.map((m) => {
+//             const mine = own.metric_values?.[m.id] ?? null;
+//             const team = own.team_average?.[m.id] ?? null;
+//             const diff = mine !== null && team !== null ? Number(mine) - Number(team) : null;
+//             return (
+//               <div key={m.id} className="rounded-lg border bg-muted/30 p-3">
+//                 <dt className="truncate text-xs text-muted-foreground">{m.name}</dt>
+//                 <dd className="mt-1 flex items-baseline justify-between gap-2">
+//                   <span className="font-semibold tabular-nums">{formatMetricValue(mine, m.data_type, m.unit)}</span>
+//                   {diff !== null && diff !== 0 && (
+//                     <span className={cn("inline-flex items-center text-xs tabular-nums", diff > 0 ? "text-success" : "text-muted-foreground")}>
+//                       {diff > 0 ? <ArrowUp className="size-3" aria-hidden /> : <ArrowDown className="size-3" aria-hidden />}
+//                       <span className="sr-only">{diff > 0 ? "above" : "below"} average by </span>
+//                       {formatMetricValue(Math.abs(diff), m.data_type, m.unit)}
+//                     </span>
+//                   )}
+//                 </dd>
+//                 <dd className="text-xs text-muted-foreground">Team average {formatMetricValue(team, m.data_type, m.unit)}</dd>
+//               </div>
+//             );
+//           })}
+//         </dl>
+//       </CardContent>
+//     </Card>
+//   );
+// }

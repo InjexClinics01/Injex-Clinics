@@ -237,7 +237,8 @@ function CategorySection({
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      {/* Top performers and Team performance commented out as requested */}
+      {/* <div className="grid gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -297,7 +298,7 @@ function CategorySection({
             </Table>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       <Card className="py-0">
         <div className="overflow-x-auto">

@@ -82,7 +82,7 @@ export const AUDIT_FILTERS = {
 export type AuditFilter = keyof typeof AUDIT_FILTERS;
 export const AUDIT_PAGE_SIZE = 25;
 
-export async function listAuditLog(filter: AuditFilter, page: number) {
+export async function listAuditLog(filter: AuditFilter, page: number, pageSize: number = AUDIT_PAGE_SIZE) {
   const supabase = await createClient();
   const types = AUDIT_FILTERS[filter];
   return fetchPage<ActivityItem>(
@@ -99,7 +99,7 @@ export async function listAuditLog(filter: AuditFilter, page: number) {
       }>;
     },
     page,
-    AUDIT_PAGE_SIZE,
+    pageSize,
   ).catch((e: Error) => {
     throw new Error(`Could not load the audit log: ${e.message}`);
   });

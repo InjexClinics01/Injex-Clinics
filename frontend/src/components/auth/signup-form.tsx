@@ -23,13 +23,13 @@ export function SignupForm() {
     return (
       <div className="space-y-6 text-center">
         <FormMessage status="success" message={state.message} />
-        <div className="rounded-lg border bg-muted/30 p-4 text-left text-sm text-muted-foreground">
+        {/* <div className="rounded-lg border bg-muted/30 p-4 text-left text-sm text-muted-foreground">
           <p className="font-medium text-foreground">What happens next?</p>
           <ul className="mt-2 list-inside list-disc space-y-1">
             <li>Your clinic administrator will review your registration request.</li>
             <li>Once approved, you will be able to sign in immediately with your email and password.</li>
           </ul>
-        </div>
+        </div> */}
         <Link
           href="/login"
           className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-ring"

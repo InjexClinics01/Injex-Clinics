@@ -108,8 +108,8 @@ export function ProgressTracker({ basePath, view, buckets, metrics, selected, se
         })}
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
+      <div className="grid gap-6">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>{selected?.name ?? "Performance"}</CardTitle>
             <CardDescription>
@@ -169,7 +169,7 @@ export function ProgressTracker({ basePath, view, buckets, metrics, selected, se
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        {/* <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Goals vs actual</CardTitle>
             <CardDescription>Verified = approved entries. Submitted includes entries awaiting review.</CardDescription>
@@ -204,7 +204,7 @@ export function ProgressTracker({ basePath, view, buckets, metrics, selected, se
               </ul>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

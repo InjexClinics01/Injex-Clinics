@@ -230,7 +230,7 @@ const LOCKED_TEXT = {
   },
   approved: {
     title: "Approved",
-    description: "This entry has been verified and counts towards your performance. Ask an administrator if a correction is needed.",
+    description: "This entry has been verified and counts towards your performance.",
   },
   rejected: {
     title: "Rejected",

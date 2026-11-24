@@ -75,11 +75,7 @@ export function EmployeeDirectory({
             <option value="none">Unassigned</option>
           </NativeSelect>
           </div>
-          <NativeSelect aria-label="Filter by role" value={filters.role} onChange={set("role")} className="lg:w-36">
-            <option value="all">All roles</option>
-            <option value="employee">Employees</option>
-            <option value="admin">Admins</option>
-          </NativeSelect>
+          {/* Role filter is hidden since only employees are listed in the employee section */}
           <NativeSelect aria-label="Filter by status" value={filters.status} onChange={set("status")} className="lg:w-36">
             <option value="all">Any status</option>
             <option value="true">Active</option>

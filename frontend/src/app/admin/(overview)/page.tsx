@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ActivityList } from "@/components/dashboard/activity-list";
+import { Pagination } from "@/components/dashboard/pagination";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { requireAdmin } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { firstName } from "@/lib/utils/format";
-import { computeStaffStats, listProfiles, listRecentActivity } from "@/services/employees";
+import { parsePage } from "@/lib/utils/fetch-page";
+import { AUDIT_FILTERS, AUDIT_PAGE_SIZE, computeStaffStats, listAuditLog, listProfiles, type AuditFilter } from "@/services/employees";
 import { listAllMetrics } from "@/services/metrics";
 import { RedemptionStatusBadge } from "@/components/points/redemption-status-badge";
 import { formatPoints } from "@/lib/points/schemas";
@@ -20,12 +22,37 @@ import { countPendingSubmissions } from "@/services/review";
 
 export const metadata: Metadata = { title: "Admin overview" };
 
-export default async function AdminOverviewPage() {
+const OVERVIEW_AUDIT_PAGE_SIZE = 20;
+
+const AUDIT_LABELS: Record<AuditFilter, string> = {
+  all: "Everything",
+  entries: "Submissions & corrections",
+  configuration: "Metrics, scoring & settings",
+  points: "Points & rewards",
+  accounts: "Accounts",
+};
+
+const auditHrefFor = (filter: AuditFilter, page = 1) =>
+  `/admin?${new URLSearchParams({ ...(filter !== "all" && { type: filter }), ...(page > 1 && { page: String(page) }) })}`;
+
+export default async function AdminOverviewPage({ searchParams }: PageProps<"/admin">) {
   const admin = await requireAdmin();
+  const params = await searchParams;
+  const auditFilter = (Object.keys(AUDIT_FILTERS) as AuditFilter[]).find((k) => k === params.type) ?? "all";
+  const auditPage = parsePage(params.page);
+
   await syncPointsAfterResponse();
-  const [profiles, activity, pending, metrics, balances, { rows: redemptions }, pendingRedemptions] = await Promise.all([
+  const [
+    profiles,
+    { rows: auditRows, total: auditTotal, page: currentAuditPage },
+    pending,
+    metrics,
+    balances,
+    { rows: redemptions },
+    pendingRedemptions,
+  ] = await Promise.all([
     listProfiles(),
-    listRecentActivity(8),
+    listAuditLog(auditFilter, auditPage, OVERVIEW_AUDIT_PAGE_SIZE),
     countPendingSubmissions(),
     listAllMetrics(),
     listBalances(),
@@ -36,6 +63,7 @@ export default async function AdminOverviewPage() {
   const topEarners = [...balances].filter((b) => b.lifetime_earned > 0).sort((a, b) => b.lifetime_earned - a.lifetime_earned).slice(0, 5);
   const stats = computeStaffStats(profiles);
   const profilesById = new Map(profiles.map((p) => [p.id, p]));
+  const metricsById = new Map(metrics.map((m) => [m.id, m]));
 
   return (
     <>
@@ -68,21 +96,43 @@ export default async function AdminOverviewPage() {
         />
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-5">
-        <Card className="lg:col-span-3">
+      <div className="mt-6">
+        <Card className="flex flex-col pb-0 w-full">
           <CardHeader>
-            <CardTitle>Recent activity</CardTitle>
-            <CardDescription>Submissions, reviews, corrections and configuration changes.</CardDescription>
+            <CardTitle>Audit log</CardTitle>
+            <CardDescription>Every approval, rejection, correction, points adjustment and configuration change.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <ActivityList items={activity} profilesById={profilesById} metricsById={new Map(metrics.map((m) => [m.id, m]))} />
-            <Link href="/admin/audit" className={cn(buttonVariants({ variant: "link" }), "mt-4 px-0")}>
-              Full audit log <ArrowRight />
-            </Link>
+          <div className="px-6 pb-2">
+            <nav aria-label="Filter the audit log" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
+              {(Object.keys(AUDIT_LABELS) as AuditFilter[]).map((key) => (
+                <Link
+                  key={key}
+                  href={auditHrefFor(key)}
+                  aria-current={key === auditFilter ? "page" : undefined}
+                  className={cn(buttonVariants({ variant: key === auditFilter ? "secondary" : "ghost", size: "sm" }), "shrink-0")}
+                >
+                  {AUDIT_LABELS[key]}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <CardContent className="flex-1">
+            <ActivityList
+              items={auditRows}
+              profilesById={profilesById}
+              metricsById={metricsById}
+              emptyText="Nothing has been recorded for this filter yet."
+            />
           </CardContent>
+          <Pagination
+            page={currentAuditPage}
+            pageSize={OVERVIEW_AUDIT_PAGE_SIZE}
+            total={auditTotal}
+            hrefFor={(p) => auditHrefFor(auditFilter, p)}
+          />
         </Card>
 
-        <div className="space-y-6 lg:col-span-2">
+        {/* <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
               <CardTitle>Review queue</CardTitle>
@@ -160,7 +210,7 @@ export default async function AdminOverviewPage() {
               </Link>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
       </div>
     </>
   );

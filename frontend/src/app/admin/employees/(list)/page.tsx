@@ -19,11 +19,14 @@ export default async function EmployeesPage({ searchParams }: PageProps<"/admin/
   const tab = params?.tab === "pending" ? "pending" : "directory";
 
   const admin = await requireAdmin();
-  const [profiles, categories, pendingRequests] = await Promise.all([
+  const [allProfiles, categories, pendingRequests] = await Promise.all([
     listProfiles(),
     listCategories(),
     listPendingRegistrationRequests(),
   ]);
+
+  // In the employee section, only show staff employees (not admin accounts)
+  const profiles = allProfiles.filter((p) => p.role !== "admin");
 
   const pendingCount = pendingRequests.length;
 

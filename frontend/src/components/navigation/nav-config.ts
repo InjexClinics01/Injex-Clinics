@@ -47,13 +47,13 @@ export const NAVIGATION: Record<NavVariant, NavSection[]> = {
         { title: "Rewards", href: "/admin/rewards", icon: Gift },
       ],
     },
-    {
-      label: "System",
-      items: [
-        { title: "Audit log", href: "/admin/audit", icon: ScrollText },
-        { title: "Settings", href: "/admin/settings", icon: Settings },
-      ],
-    },
+    // {
+    //   label: "System",
+    //   items: [
+    //     { title: "Audit log", href: "/admin/audit", icon: ScrollText },
+    //     { title: "Settings", href: "/admin/settings", icon: Settings },
+    //   ],
+    // },
   ],
   employee: [
     {

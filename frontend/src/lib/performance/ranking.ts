@@ -9,14 +9,24 @@ export type RankedRow<T> = T & { rank: number | null };
 
 /**
  * Standard competition ranking (1, 2, 2, 4): equal scores share a rank.
- * Rows without a score are listed last, unranked. Ties keep name order.
+ * Rows without a score are listed last, unranked.
+ * Optional tieBreaker used when scores are equal before falling back to name.
  */
-export function rankRows<T extends { full_name: string }>(rows: T[], score: (row: T) => number | null): RankedRow<T>[] {
+export function rankRows<T extends { full_name: string }>(
+  rows: T[],
+  score: (row: T) => number | null,
+  tieBreaker?: (a: T, b: T) => number,
+): RankedRow<T>[] {
   const sorted = [...rows].sort((a, b) => {
     const sa = score(a);
     const sb = score(b);
-    if (sa === null || sb === null) return sa === sb ? byName(a, b) : sa === null ? 1 : -1;
-    return sb - sa || byName(a, b);
+    if (sa === null || sb === null) {
+      if (sa === sb) {
+        return (tieBreaker ? tieBreaker(a, b) : 0) || byName(a, b);
+      }
+      return sa === null ? 1 : -1;
+    }
+    return sb - sa || (tieBreaker ? tieBreaker(a, b) : 0) || byName(a, b);
   });
 
   let previous: number | null = null;
