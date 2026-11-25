@@ -307,7 +307,7 @@ export async function approveRegistrationRequest(requestId: string): Promise<For
   });
 
   // 4. Send approval notification email
-  const siteUrl = getSiteUrl();
+  const siteUrl = await getSiteUrl();
   const { subject, html, text } = generateRegistrationApprovedEmail({
     recipientName: request.full_name,
     category: request.employee_category,

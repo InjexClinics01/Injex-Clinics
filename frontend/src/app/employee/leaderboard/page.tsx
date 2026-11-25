@@ -57,7 +57,7 @@ export default async function EmployeeLeaderboardPage({ searchParams }: PageProp
         category={category}
         categories={[
           { slug: own, label: categoryLabel(own) },
-          ...(settings.overall_leaderboard_enabled ? [{ slug: null, label: "Overall" }] : []),
+          /* ...(settings.overall_leaderboard_enabled ? [{ slug: null, label: "Overall" }] : []), */
         ]}
         rows={rows}
         metrics={category ? metrics.filter((m) => m.is_active) : []}

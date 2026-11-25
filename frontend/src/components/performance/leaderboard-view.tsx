@@ -82,6 +82,11 @@ export function LeaderboardView(props: LeaderboardViewProps) {
       // 3. More approved days ranks higher
       if (b.approved_days !== a.approved_days) return b.approved_days - a.approved_days;
 
+      // 4. Higher raw metric values rank higher on ties
+      const aRaw = Object.values(a.metric_values ?? {}).reduce<number>((acc, v) => acc + (Number(v) || 0), 0);
+      const bRaw = Object.values(b.metric_values ?? {}).reduce<number>((acc, v) => acc + (Number(v) || 0), 0);
+      if (bRaw !== aRaw) return bRaw - aRaw;
+
       return 0;
     },
   );

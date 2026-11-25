@@ -1,8 +1,9 @@
 import "server-only";
 
-import { recentPeriods } from "@/lib/metrics/periods";
+import { periodEnd, periodStart, recentPeriods } from "@/lib/metrics/periods";
 import type { ReportFilters } from "@/lib/performance/filters";
 import { summariseEmployees } from "@/lib/reports/summary";
+import { createAdminClient, isAdminClientConfigured } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { listCategories, listProfiles } from "@/services/employees";
 import { appToday, listAllMetrics, listGoalProgress, listMetrics } from "@/services/metrics";
@@ -36,14 +37,93 @@ export async function fetchAllPages<T>(
 }
 
 export async function getLeaderboard(period: GoalPeriod, day: string, category: string | null): Promise<LeaderboardRow[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("leaderboard", {
-    p_period: period,
-    p_day: day,
-    ...(category ? { p_category: category } : {}),
+  const userClient = await createClient();
+  const adminClient = isAdminClientConfigured() ? createAdminClient() : userClient;
+  const start = periodStart(period, day);
+  const end = periodEnd(period, start);
+
+  const [leaderboardRes, rulesRes, seriesRes] = await Promise.all([
+    userClient.rpc("leaderboard", {
+      p_period: period,
+      p_day: day,
+      ...(category ? { p_category: category } : {}),
+    }),
+    adminClient
+      .from("scoring_rules")
+      .select("*, metric_definitions(name, category, key)")
+      .eq("is_active", true)
+      .eq("period", period),
+    adminClient.rpc("metric_series", {
+      p_bucket: period,
+      p_start: start,
+      p_end: end,
+      ...(category ? { p_category: category } : {}),
+    }),
+  ]);
+
+  if (leaderboardRes.error) throw new Error(`Could not load the leaderboard: ${leaderboardRes.error.message}`);
+  const rows: LeaderboardRow[] = leaderboardRes.data ?? [];
+  const rules = (rulesRes.data ?? []) as any[];
+  const series = (seriesRes.data ?? []) as any[];
+
+  if (!rules.length || !rows.length) return rows;
+
+  // Map employee_id -> metric_id -> value
+  const valuesByEmp = new Map<string, Map<string, number>>();
+  for (const s of series) {
+    if (!valuesByEmp.has(s.employee_id)) valuesByEmp.set(s.employee_id, new Map());
+    valuesByEmp.get(s.employee_id)!.set(s.metric_id, Number(s.value));
+  }
+
+  // Calculate proportional points per category and employee
+  return rows.map((r) => {
+    const empRules = rules.filter((rule) => rule.metric_definitions?.category === r.category);
+    if (!empRules.length) return r;
+
+    // Group rules by metric_id
+    const rulesByMetric = new Map<string, any[]>();
+    for (const rule of empRules) {
+      if (!rulesByMetric.has(rule.metric_id)) rulesByMetric.set(rule.metric_id, []);
+      rulesByMetric.get(rule.metric_id)!.push(rule);
+    }
+
+    let totalPoints = 0;
+    let totalMax = 0;
+    const empVals = valuesByEmp.get(r.employee_id);
+
+    for (const [metricId, metricRules] of rulesByMetric.entries()) {
+      const val = empVals?.get(metricId) ?? 0;
+      let metricEarned = 0;
+      let metricMax = 0;
+
+      for (const rule of metricRules) {
+        metricMax = Math.max(metricMax, rule.points);
+        const threshold = Number(rule.threshold);
+        if (threshold > 0) {
+          const ratio = val / threshold;
+          const pts = ratio >= 1 ? rule.points : Math.round(ratio * rule.points * 10) / 10;
+          metricEarned = Math.max(metricEarned, pts);
+        }
+      }
+      totalPoints += metricEarned;
+      totalMax += metricMax;
+    }
+
+    // Attach raw metric values into r.metric_values so tooltips/comparisons work
+    const metricValuesObj = { ...(r.metric_values ?? {}) };
+    if (empVals) {
+      for (const [mId, mVal] of empVals.entries()) {
+        metricValuesObj[mId] = mVal;
+      }
+    }
+
+    return {
+      ...r,
+      points: totalPoints,
+      max_points: totalMax > 0 ? totalMax : r.max_points,
+      metric_values: metricValuesObj,
+    };
   });
-  if (error) throw new Error(`Could not load the leaderboard: ${error.message}`);
-  return data;
 }
 
 /** Approved values per day/week/month (or for the whole range when `bucket` is null). */

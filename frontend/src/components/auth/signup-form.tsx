@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight, Check, Clock } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 
@@ -15,26 +16,50 @@ import { EMAIL_MAX_LENGTH, NAME_MAX_LENGTH, initialFormState, validator } from "
 
 const validate = validator(signupSchema, readSignup);
 
-export function SignupForm() {
+export function SignupForm({ onStatusChange }: { onStatusChange?: (status: string) => void }) {
   const [state, action, pending] = useActionState(registerEmployee, initialFormState);
   const { errors, showServerMessage, formProps } = useFormValidation(validate, state);
 
   if (state.status === "success") {
+    onStatusChange?.("success");
     return (
-      <div className="space-y-6 text-center">
-        <FormMessage status="success" message={state.message} />
-        {/* <div className="rounded-lg border bg-muted/30 p-4 text-left text-sm text-muted-foreground">
-          <p className="font-medium text-foreground">What happens next?</p>
-          <ul className="mt-2 list-inside list-disc space-y-1">
-            <li>Your clinic administrator will review your registration request.</li>
-            <li>Once approved, you will be able to sign in immediately with your email and password.</li>
-          </ul>
-        </div> */}
+      <div className="flex flex-col items-center text-center py-2">
+        {/* Circular Success Check Icon matching reference image */}
+        <div className="mb-6 flex size-16 items-center justify-center rounded-full bg-emerald-50/80 text-emerald-600">
+          <div className="flex size-8 items-center justify-center rounded-full border-2 border-emerald-600">
+            <Check className="size-4.5 stroke-[2.5]" />
+          </div>
+        </div>
+
+        {/* Title & Message */}
+        <h2 className="text-xl font-bold tracking-tight text-foreground">Registration submitted!</h2>
+        <p className="mt-3 text-sm text-muted-foreground leading-relaxed max-w-[290px]">
+          Your registration request has been successfully submitted.
+        </p>
+
+        {/* Pending Approval Badge */}
+        <div className="mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+          <Clock className="size-3.5 text-amber-600" />
+          <span>Pending approval</span>
+        </div>
+
+        {/* Divider */}
+        <div className="my-6 h-px w-full bg-border/80" />
+
+        {/* What's next section */}
+        <div className="space-y-2">
+          <h3 className="text-base font-bold text-foreground">What&apos;s next?</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed max-w-[270px]">
+            Your clinic administrator will review your request. Once approved, you will receive an email notification with your confirmation to sign in.
+          </p>
+        </div>
+
+        {/* Return to sign in button matching reference style */}
         <Link
           href="/login"
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-ring"
+          className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-teal-700 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-ring"
         >
-          Return to Sign in
+          Return to sign in <ArrowRight className="size-4" />
         </Link>
       </div>
     );

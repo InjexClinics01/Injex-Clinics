@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 import { MetricsConfig } from "@/components/admin/metrics-config";
@@ -12,7 +13,10 @@ export const metadata: Metadata = { title: "Goals & Scoring" };
 
 export default async function GoalsScoringPage({ searchParams }: PageProps<"/admin/goals">) {
   await requireAdmin();
-  const requested = (await searchParams).category;
+  const params = await searchParams;
+  const cookieStore = await cookies();
+  const savedCategory = cookieStore.get("admin_category")?.value;
+  const requested = typeof params.category === "string" ? params.category : savedCategory;
   const [categories, allMetrics, allRules] = await Promise.all([listCategories(), listAllMetrics(), listScoringRules()]);
   const category = categories.find((c) => c.slug === requested) ?? categories[0];
 

@@ -64,6 +64,13 @@ export async function updateSession(request: NextRequest) {
     return withCookies(redirectTo(request, "/login", next ? { next } : {}), response);
   }
 
+  if (pathname.startsWith("/admin")) {
+    const cat = request.nextUrl.searchParams.get("category");
+    if (cat && cat !== "overall") {
+      response.cookies.set("admin_category", cat, { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    }
+  }
+
   // Each lookup is a database round trip on the critical path of every page.
   // These sections re-check in their layouts, pages, actions and route handlers
   // anyway, so a lookup here would only repeat that work.
