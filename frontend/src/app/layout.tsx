@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 
+import { NavigationProgressBar } from "@/components/layout/navigation-progress-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME } from "@/lib/constants";
@@ -24,6 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full bg-background text-foreground">
+        <Suspense fallback={null}>
+          <NavigationProgressBar />
+        </Suspense>
         <TooltipProvider>{children}</TooltipProvider>
         <Toaster richColors position="top-right" />
       </body>

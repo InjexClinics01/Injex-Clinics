@@ -114,6 +114,7 @@ export function LeaderboardView(props: LeaderboardViewProps) {
               <Link
                 key={c.slug ?? "overall"}
                 href={hrefFor(basePath, { ...query, category: c.slug, metric: null })}
+                prefetch={true}
                 aria-current={c.slug === category ? "page" : undefined}
                 className={cn(
                   "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
@@ -129,6 +130,7 @@ export function LeaderboardView(props: LeaderboardViewProps) {
               <Link
                 key={p}
                 href={hrefFor(basePath, { ...query, period: p, date: today })}
+                prefetch={true}
                 aria-current={p === period ? "page" : undefined}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",

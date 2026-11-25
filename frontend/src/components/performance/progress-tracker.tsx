@@ -71,6 +71,7 @@ export function ProgressTracker({ basePath, view, buckets, metrics, selected, se
             <Link
               key={p}
               href={hrefFor(basePath, p, selected?.id ?? null)}
+              prefetch={true}
               aria-current={p === view ? "page" : undefined}
               className={cn(
                 "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",

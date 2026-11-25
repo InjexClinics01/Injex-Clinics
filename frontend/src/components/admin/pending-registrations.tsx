@@ -16,7 +16,13 @@ import { formatDate, initials } from "@/lib/utils/format";
 import type { EmployeeRegistrationRequest } from "@/types/database";
 import { approveRegistrationRequest, rejectRegistrationRequest } from "@/app/admin/employees/actions";
 
-export function PendingRegistrations({ requests }: { requests: EmployeeRegistrationRequest[] }) {
+export function PendingRegistrations({
+  requests,
+  onResolved,
+}: {
+  requests: EmployeeRegistrationRequest[];
+  onResolved?: (id: string) => void;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [actionId, setActionId] = useState<string | null>(null);
@@ -28,13 +34,14 @@ export function PendingRegistrations({ requests }: { requests: EmployeeRegistrat
         const result = await approveRegistrationRequest(id);
         if (result.status === "success") {
           toast.success(result.message);
+          onResolved?.(id);
           router.refresh();
         } else {
           toast.error(result.message || "Failed to approve registration.");
+          setActionId(null);
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Could not approve registration.");
-      } finally {
         setActionId(null);
       }
     });
@@ -50,13 +57,14 @@ export function PendingRegistrations({ requests }: { requests: EmployeeRegistrat
         const result = await rejectRegistrationRequest(id, reason);
         if (result.status === "success") {
           toast.success(result.message);
+          onResolved?.(id);
           router.refresh();
         } else {
           toast.error(result.message || "Failed to reject registration.");
+          setActionId(null);
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Could not reject registration.");
-      } finally {
         setActionId(null);
       }
     });

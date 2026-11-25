@@ -28,6 +28,7 @@ export default async function GoalsScoringPage({ searchParams }: PageProps<"/adm
           <Link
             key={c.slug}
             href={`/admin/goals?category=${c.slug}`}
+            prefetch={true}
             aria-current={c.slug === category?.slug ? "page" : undefined}
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
